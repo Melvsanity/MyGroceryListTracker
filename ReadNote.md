@@ -7,14 +7,6 @@ npx create-expo-app@latest MyGroceryListTracker --template blank-typescript
 # Go into the project folder
 cd MyGroceryListTracker
 
-# Install dependencies
-npm install @react-navigation/native @react-navigation/bottom-tabs
-npm install expo-sqlite
-npm install nativewind
-npm install react-native-paper
-npm install expo-camera
-npm install @react-native-ml-kit/text-recognition
-
 ---
 
 # MyGroceryListTracker — Master Build Guide
@@ -63,6 +55,7 @@ MyGroceryListTracker/
 ├── database/
 │   ├── db.ts
 │   ├── items.ts
+│   ├── list.tsx
 │   └── receipts.ts
 ├── hooks/
 │   ├── useOCR.ts
@@ -71,6 +64,37 @@ MyGroceryListTracker/
 └── constants/
     └── index.ts
 ```
+
+---
+
+Next - Step 6: OCR Scanner!
+
+---
+
+## 📁 File Structure
+```
+MyGroceryListTracker/
+├── App.tsx
+├── app/
+│   ├── index.tsx
+│   ├── list.tsx
+│   └── history.tsx
+
+├── components/
+
+├── database/
+│   ├── db.ts
+│   ├── items.ts
+│   ├── lists.ts
+│   └── receipts.ts
+├── hooks/
+│   ├── useSuggestions.ts
+
+├── constants/
+
+```
+
+---
 
 ## 🏗️ Build Steps
 

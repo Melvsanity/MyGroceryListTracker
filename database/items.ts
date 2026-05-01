@@ -35,11 +35,12 @@ export const updateItem = (item: GroceryItem): void => {
   );
 };
 
+export const updateItemPrice = (id: number, price: number): void => {
+  db.runSync(`UPDATE items SET price=? WHERE id=?`, [price, id]);
+};
+
 export const toggleChecked = (id: number, checked: number): void => {
-  db.runSync(
-    `UPDATE items SET checked=? WHERE id=?`,
-    [checked, id]
-  );
+  db.runSync(`UPDATE items SET checked=? WHERE id=?`, [checked, id]);
 };
 
 export const deleteItem = (id: number): void => {
@@ -47,8 +48,14 @@ export const deleteItem = (id: number): void => {
 };
 
 export const getAllItemNames = (): { name: string; price: number; category: string }[] => {
-  return db.getAllSync(
-    `SELECT name, price, category FROM items
-     GROUP BY name ORDER BY COUNT(*) DESC LIMIT 100`
-  ) as { name: string; price: number; category: string }[];
+  return db.getAllSync(`
+    SELECT i.name, i.price, i.category
+    FROM items i
+    LEFT JOIN receipts r ON i.list_id = r.list_id
+    WHERE i.price > 0
+    GROUP BY i.name
+    HAVING MAX(r.saved_at) = r.saved_at OR r.saved_at IS NULL
+    ORDER BY MAX(COALESCE(r.saved_at, i.rowid)) DESC
+    LIMIT 100
+  `) as { name: string; price: number; category: string }[];
 };

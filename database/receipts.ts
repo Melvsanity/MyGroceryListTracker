@@ -1,4 +1,5 @@
 import db from './db';
+import { GroceryItem } from './items';
 
 export interface Receipt {
   id?: number;
@@ -7,6 +8,7 @@ export interface Receipt {
   saved_at?: string;
   name?: string;
   store?: string;
+  item_count?: number;
 }
 
 export const saveReceipt = (listId: number, total: number): number => {
@@ -19,7 +21,8 @@ export const saveReceipt = (listId: number, total: number): number => {
 
 export const getAllReceipts = (): Receipt[] => {
   return db.getAllSync(
-    `SELECT r.*, l.name, l.store
+    `SELECT r.*, l.name, l.store,
+     (SELECT COUNT(*) FROM items WHERE list_id = r.list_id) as item_count
      FROM receipts r
      JOIN lists l ON r.list_id = l.id
      ORDER BY r.saved_at DESC`
@@ -33,12 +36,14 @@ export const getReceiptWithItems = (receiptId: number) => {
      JOIN lists l ON r.list_id = l.id
      WHERE r.id = ?`,
     [receiptId]
-  ) as Receipt & { budget: number };
+  ) as (Receipt & { budget: number }) | null;
+
+  if (!receipt) return null;
 
   const items = db.getAllSync(
     `SELECT * FROM items WHERE list_id = ? ORDER BY category, name`,
     [receipt.list_id]
-  );
+  ) as GroceryItem[];
 
   return { receipt, items };
 };

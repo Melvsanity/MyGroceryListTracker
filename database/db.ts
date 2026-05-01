@@ -40,7 +40,14 @@ export const initDB = async (): Promise<void> => {
     );
   `);
 
+  // ─── Migrations ───────────────────────────────────────
+  // Add archived column if it doesn't exist yet
+  try {
+    db.execSync(`ALTER TABLE lists ADD COLUMN archived INTEGER DEFAULT 0;`);
+  } catch (e) {
+    // Column already exists — safe to ignore
+  }
+
   console.log('✅ DB initialized');
 };
-
 export default db;
