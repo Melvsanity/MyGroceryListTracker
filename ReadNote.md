@@ -96,6 +96,25 @@ MyGroceryListTracker/
 
 ---
 
+Most Viable Product:
+
+**Phase 1 — `constants/index.ts`** (Done)
+Centralize all colors, categories, and currency symbol. Then update `index.tsx`, `list.tsx`, `history.tsx` to import from it. No behavior change, just cleaner code.
+
+**Phase 2 — `useBudget.ts`**
+Extract `total`, `overBudget`, `budgetPct` out of `list.tsx` into a hook. Keeps the screen component lean.
+
+**Phase 3 — App Icon & Splash Screen**
+Design a simple grocery-themed icon and splash. Update `app.json`. You'll need a 1024×1024 PNG for the icon and a splash image.
+
+**Phase 4 — Publish Prep**
+- `app.json` config — `bundleIdentifier`, `versionCode`, `permissions`
+- `eas.json` — build profiles for APK (side-load) and AAB (Play Store)
+- Run `eas build` commands
+- Play Store listing checklist
+
+---
+
 ## 🏗️ Build Steps
 
 ### Step 2: Database Setup

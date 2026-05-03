@@ -48,6 +48,10 @@ export const initDB = async (): Promise<void> => {
     // Column already exists — safe to ignore
   }
 
+  try {
+    db.execSync(`CREATE TABLE IF NOT EXISTS dismissed_suggestions (name TEXT PRIMARY KEY);`);
+  } catch (e) {}
+
   console.log('✅ DB initialized');
 };
 export default db;

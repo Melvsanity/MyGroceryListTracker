@@ -59,3 +59,12 @@ export const getAllItemNames = (): { name: string; price: number; category: stri
     LIMIT 100
   `) as { name: string; price: number; category: string }[];
 };
+
+export const dismissSuggestion = (name: string): void => {
+  db.runSync(`INSERT OR IGNORE INTO dismissed_suggestions (name) VALUES (?)`, [name]);
+};
+
+export const getDismissedSuggestions = (): string[] => {
+  const rows = db.getAllSync(`SELECT name FROM dismissed_suggestions`) as { name: string }[];
+  return rows.map((r) => r.name);
+};

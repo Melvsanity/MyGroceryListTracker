@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAllItemNames } from '../database/items';
+import { getAllItemNames, dismissSuggestion, getDismissedSuggestions } from '../database/items';
 
 export interface Suggestion {
   name: string;
@@ -9,40 +9,52 @@ export interface Suggestion {
 
 export function useSuggestions(query: string) {
   const [allItems, setAllItems] = useState<Suggestion[]>([]);
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const dismissed = useRef(false);
+  const sessionDismissed = useRef(false);
   const lastAccepted = useRef('');
 
+  // Load all items + permanently dismissed names on mount
   useEffect(() => {
     try {
       setAllItems(getAllItemNames());
+      const names = getDismissedSuggestions();
+      setDismissed(new Set(names));
     } catch (e) {
       console.warn('useSuggestions: could not load items', e);
     }
   }, []);
 
   useEffect(() => {
-    if (dismissed.current && query !== lastAccepted.current) {
-      dismissed.current = false;
+    if (sessionDismissed.current && query !== lastAccepted.current) {
+      sessionDismissed.current = false;
     }
 
     const trimmed = query.trim().toLowerCase();
-    if (trimmed.length < 1 || dismissed.current) {
+    if (trimmed.length < 1 || sessionDismissed.current) {
       setSuggestions([]);
       return;
     }
 
     const matches = allItems
+      .filter((item) => !dismissed.has(item.name))           // filter out permanently dismissed
       .filter((item) => item.name.toLowerCase().includes(trimmed))
       .slice(0, 6);
     setSuggestions(matches);
-  }, [query, allItems]);
+  }, [query, allItems, dismissed]);
 
+  // Session dismiss — user accepted a suggestion, hide dropdown
   const dismiss = (acceptedName: string) => {
-    dismissed.current = true;
+    sessionDismissed.current = true;
     lastAccepted.current = acceptedName;
     setSuggestions([]);
   };
 
-  return { suggestions, dismiss };
+  // Permanent dismiss — user tapped ✕, never show this suggestion again
+  const permanentDismiss = (name: string) => {
+    dismissSuggestion(name);                                  // persist to DB
+    setDismissed((prev) => new Set([...prev, name]));        // update local state
+  };
+
+  return { suggestions, dismiss, permanentDismiss };
 }
